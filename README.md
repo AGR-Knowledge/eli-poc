@@ -231,9 +231,9 @@ If you encounter any issues or have questions:
 - [ ] Advanced security features
 
 ### Version History
-- **v0.1.0** - Initial release with basic EDC functionality
-- **v0.2.0** - AI-powered document processing
-- **v0.3.0** - Enhanced UI/UX with shadcn/ui components
+- **v1.0.0** - Initial release with basic EDC functionality
+- **v1.1.0** - AI-powered document processing
+- **v1.2.0** - Enhanced UI/UX with shadcn/ui components
 
 ---
 
