@@ -13,7 +13,7 @@ import {
   Plus,
   Search,
   Filter,
-  Eye,
+  Edit,
   Trash2,
   Copy,
   Building,
@@ -28,70 +28,65 @@ import {
   Database,
   LineChart,
   Download,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react"
-import { mockStudiesList } from "@/lib/mock-data"
+import { useStudies, Study } from "@/hooks/useStudies"
 import { getProcessingStatusColor, getPriorityColor, getStatusColor } from "@/lib/clinical-utils"
 
 interface StudiesListViewProps {
   handleCreateNewStudy: () => void
   setSelectedStudy: (studyId: string) => void
   setCurrentView: (view: "studies" | "study" | "upload" | "new-study") => void
+  setEditMode?: (editMode: boolean) => void
 }
 
-export function StudiesListView({ handleCreateNewStudy, setSelectedStudy, setCurrentView }: StudiesListViewProps) {
-  return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Professional Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo and Navigation */}
-            <div className="flex items-center space-x-8">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                  <Database className="h-5 w-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gray-900">ClinicalEDC</h1>
-                  <p className="text-xs text-gray-500">Enterprise Platform</p>
-                </div>
-              </div>
-              <nav className="hidden md:flex space-x-6">
-                <a href="#" className="text-gray-900 font-medium border-b-2 border-red-600 pb-4">
-                  Studies
-                </a>
-                <a href="#" className="text-gray-600 hover:text-gray-900 pb-4">
-                  Analytics
-                </a>
-                <a href="#" className="text-gray-600 hover:text-gray-900 pb-4">
-                  Sites
-                </a>
-                <a href="#" className="text-gray-600 hover:text-gray-900 pb-4">
-                  Reports
-                </a>
-              </nav>
-            </div>
+export function StudiesListView({ handleCreateNewStudy, setSelectedStudy, setCurrentView, setEditMode }: StudiesListViewProps) {
+  const { studies, loading, error } = useStudies();
 
-            {/* Right side actions */}
-            <div className="flex items-center space-x-4">
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                <Bell className="h-4 w-4" />
-              </Button>
-              <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
-                <Settings className="h-4 w-4" />
-              </Button>
-              <div className="flex items-center space-x-2 text-sm">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                  <User className="h-4 w-4 text-gray-600" />
-                </div>
-                <span className="text-gray-700 font-medium">Dr. Smith</span>
-                <ChevronDown className="h-4 w-4 text-gray-500" />
-              </div>
+  // Show loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="flex flex-col items-center gap-4">
+              <Loader2 className="h-8 w-8 animate-spin text-red-600" />
+              <p className="text-gray-600">Loading studies...</p>
             </div>
           </div>
-        </div>
-      </header>
+        </main>
+      </div>
+    );
+  }
 
+  // Show error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex justify-center items-center h-64">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="p-3 bg-red-100 rounded-full">
+                <AlertTriangle className="h-8 w-8 text-red-600" />
+              </div>
+              <div>
+                <p className="text-lg font-semibold text-gray-900">Error Loading Studies</p>
+                <p className="text-gray-600 mt-1">{error}</p>
+              </div>
+              <Button onClick={() => window.location.reload()} variant="outline" className="mt-4">
+                <RefreshCw className="h-4 w-4 mr-2" />
+                Retry
+              </Button>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50">
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Page Header */}
@@ -228,24 +223,14 @@ export function StudiesListView({ handleCreateNewStudy, setSelectedStudy, setCur
                   Study Portfolio
                 </CardTitle>
                 <CardDescription className="text-gray-600">
-                  {mockStudiesList.length} studies • Last updated 2 minutes ago
+                  {studies.length} studies • Last updated 2 minutes ago
                 </CardDescription>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  <LineChart className="h-4 w-4 mr-2" />
-                  Analytics
-                </Button>
-                <Button variant="ghost" size="sm" className="text-gray-600">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export
-                </Button>
               </div>
             </div>
           </CardHeader>
           <CardContent className="p-0">
             <div className="divide-y divide-gray-100">
-              {mockStudiesList.map((study) => (
+              {studies.map((study: Study) => (
                 <div
                   key={study.id}
                   className="p-6 hover:bg-gray-50/50 transition-colors duration-150 cursor-pointer"
@@ -328,18 +313,37 @@ export function StudiesListView({ handleCreateNewStudy, setSelectedStudy, setCur
                         className="text-gray-600 hover:text-gray-900"
                         onClick={(e) => {
                           e.stopPropagation()
-                          // Handle view action
+                          setSelectedStudy(study.id)
+                          setCurrentView("study")
+                          if (setEditMode) {
+                            setEditMode(true)
+                          }
                         }}
                       >
-                        <Eye className="h-4 w-4" />
+                        <Edit className="h-4 w-4" />
                       </Button>
                       <Button
                         variant="ghost"
                         size="sm"
                         className="text-gray-600 hover:text-gray-900"
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation()
-                          // Handle copy action
+                          try {
+                            const response = await fetch(`/api/studies/${study.id}/clone`, {
+                              method: 'POST',
+                            })
+                            if (response.ok) {
+                              const result = await response.json()
+                              alert('Study cloned successfully!')
+                              // Refresh the studies list
+                              window.location.reload()
+                            } else {
+                              const errorData = await response.json()
+                              alert(`Failed to clone study: ${errorData.error || 'Unknown error'}`)
+                            }
+                          } catch (error) {
+                            alert(`Error cloning study: ${error instanceof Error ? error.message : 'Unknown error'}`)
+                          }
                         }}
                       >
                         <Copy className="h-4 w-4" />
@@ -348,9 +352,25 @@ export function StudiesListView({ handleCreateNewStudy, setSelectedStudy, setCur
                         variant="ghost"
                         size="sm"
                         className="text-gray-600 hover:text-red-600"
-                        onClick={(e) => {
+                        onClick={async (e) => {
                           e.stopPropagation()
-                          // Handle delete action
+                          if (confirm('Are you sure you want to delete this study? This action cannot be undone.')) {
+                            try {
+                              const response = await fetch(`/api/studies/${study.id}/delete`, {
+                                method: 'DELETE',
+                              })
+                              if (response.ok) {
+                                alert('Study deleted successfully!')
+                                // Refresh the studies list
+                                window.location.reload()
+                              } else {
+                                const errorData = await response.json()
+                                alert(`Failed to delete study: ${errorData.error || 'Unknown error'}`)
+                              }
+                            } catch (error) {
+                              alert(`Error deleting study: ${error instanceof Error ? error.message : 'Unknown error'}`)
+                            }
+                          }
                         }}
                       >
                         <Trash2 className="h-4 w-4" />

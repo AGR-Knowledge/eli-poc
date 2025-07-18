@@ -25,33 +25,31 @@ export function UploadView({
 }: UploadViewProps) {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
-                <Brain className="h-5 w-5 text-white" />
-              </div>
-              <div>
-                <h1 className="text-xl font-bold text-gray-900">AI Protocol Parser</h1>
-                <p className="text-xs text-gray-500">Intelligent Document Processing</p>
-              </div>
+      {/* Page Header */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <div className="flex justify-between items-center mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="w-8 h-8 bg-red-600 rounded-lg flex items-center justify-center">
+              <Brain className="h-5 w-5 text-white" />
             </div>
-            <Button
-              variant="outline"
-              onClick={() => setCurrentView(isNewStudy ? "new-study" : "studies")}
-              className="border-gray-300"
-            >
-              <X className="h-4 w-4 mr-2" />
-              Cancel
-            </Button>
+            <div>
+              <h1 className="text-xl font-bold text-gray-900">AI Protocol Parser</h1>
+              <p className="text-xs text-gray-500">Intelligent Document Processing</p>
+            </div>
           </div>
+          <Button
+            variant="outline"
+            onClick={() => setCurrentView(isNewStudy ? "new-study" : "studies")}
+            className="border-gray-300"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Cancel
+          </Button>
         </div>
-      </header>
+      </div>
 
       {/* Upload Content */}
-      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Upload Protocol Document</h2>
           <p className="text-gray-600">

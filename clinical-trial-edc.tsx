@@ -5,60 +5,83 @@ import { StudiesListView } from "./components/clinical-edc/studies-list-view"
 import { UploadView } from "./components/clinical-edc/upload-view"
 import { NewStudyView } from "./components/clinical-edc/new-study-view"
 import { StudyDetailsView } from "./components/clinical-edc/study-details-view"
+import { toast } from "sonner"
 
 export default function ClinicalTrialEDC() {
   const [currentView, setCurrentView] = useState<"studies" | "study" | "upload" | "new-study">("studies")
   const [selectedStudy, setSelectedStudy] = useState<string | null>(null)
+  const [editMode, setEditMode] = useState(false)
   const [processingStatus, setProcessingStatus] = useState<"PROCESSING" | "SUCCESS" | "FAILED" | null>(null)
   const [processingProgress, setProcessingProgress] = useState(0)
   const [processingMessage, setProcessingMessage] = useState("")
   const [isNewStudy, setIsNewStudy] = useState(false)
 
-  // Simulate API call for document processing
-  const simulateDocumentProcessing = async () => {
+  // Real API call for document processing
+  const processDocumentUpload = async (file: File) => {
     setProcessingStatus("PROCESSING")
     setProcessingProgress(0)
-    setProcessingMessage("Analyzing protocol document structure...")
+    setProcessingMessage("Uploading file to S3...")
 
-    const progressSteps = [
-      { progress: 20, message: "Extracting study information..." },
-      { progress: 40, message: "Parsing inclusion/exclusion criteria..." },
-      { progress: 60, message: "Identifying visit schedule..." },
-      { progress: 80, message: "Processing endpoints and assessments..." },
-      { progress: 100, message: "Finalizing study data..." },
-    ]
+    try {
+      // Create FormData
+      const formData = new FormData()
+      formData.append('file', file)
+      if (selectedStudy) {
+        formData.append('studyId', selectedStudy)
+      }
 
-    for (const step of progressSteps) {
-      await new Promise((resolve) => setTimeout(resolve, 1500))
-      setProcessingProgress(step.progress)
-      setProcessingMessage(step.message)
-    }
+      // Update progress
+      setProcessingProgress(20)
+      setProcessingMessage("Processing file content...")
 
-    const isSuccess = Math.random() > 0.1
-    if (isSuccess) {
-      setProcessingStatus("SUCCESS")
-      setProcessingMessage("Protocol document successfully processed and study data populated.")
-      setTimeout(() => {
-        if (isNewStudy) {
-          // For new study, after processing, go to study details in edit mode
-          setCurrentView("study")
-          // In a real app, you'd set the selectedStudy ID based on the processed data
-          setSelectedStudy("NEW-STUDY-PROCESSED")
-        } else {
-          // If it was just an upload for an existing study, go back to studies list
-          setCurrentView("studies")
-        }
-        setProcessingStatus(null)
-      }, 2000)
-    } else {
+      // Upload and process file
+      const response = await fetch('/api/studies/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      setProcessingProgress(80)
+      setProcessingMessage("Extracting study data with AI...")
+
+      if (!response.ok) {
+        const errorData = await response.json()
+        throw new Error(errorData.error || 'Upload failed')
+      }
+
+      const result = await response.json()
+      
+      setProcessingProgress(100)
+      setProcessingMessage("Document processed successfully!")
+
+      if (result.success) {
+        setProcessingStatus("SUCCESS")
+        toast.success("Document uploaded and processed successfully!")
+        
+        setTimeout(() => {
+          if (isNewStudy) {
+            // For new study, after processing, go to study details in edit mode
+            setCurrentView("study")
+            setSelectedStudy(result.study.studyId)
+          } else {
+            // If it was just an upload for an existing study, go back to studies list
+            setCurrentView("studies")
+          }
+          setProcessingStatus(null)
+        }, 2000)
+      } else {
+        throw new Error(result.error || 'Processing failed')
+      }
+    } catch (error) {
+      console.error('Upload error:', error)
       setProcessingStatus("FAILED")
-      setProcessingMessage("Failed to process protocol document. Please check the document format and try again.")
+      setProcessingMessage(error instanceof Error ? error.message : 'Upload failed')
+      toast.error("Failed to upload document. Please try again.")
     }
   }
 
   const handleFileUpload = (file: File) => {
     console.log("Uploading file:", file.name)
-    simulateDocumentProcessing()
+    processDocumentUpload(file)
   }
 
   const handleCreateNewStudy = () => {
@@ -78,6 +101,7 @@ export default function ClinicalTrialEDC() {
           handleCreateNewStudy={handleCreateNewStudy}
           setSelectedStudy={setSelectedStudy}
           setCurrentView={setCurrentView}
+          setEditMode={setEditMode}
         />
       )
     case "upload":
@@ -102,13 +126,14 @@ export default function ClinicalTrialEDC() {
         />
       )
     case "study":
-      return <StudyDetailsView selectedStudy={selectedStudy} setCurrentView={setCurrentView} />
+      return <StudyDetailsView selectedStudy={selectedStudy} setCurrentView={setCurrentView} editMode={editMode} setEditMode={setEditMode} />
     default:
       return (
         <StudiesListView
           handleCreateNewStudy={handleCreateNewStudy}
           setSelectedStudy={setSelectedStudy}
           setCurrentView={setCurrentView}
+          setEditMode={setEditMode}
         />
       )
   }

@@ -6,8 +6,11 @@ import { Shield, Plus, Trash2, CheckCircle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { mockAuditData } from "@/lib/mock-data"
 
+import { ComprehensiveStudy } from "@/hooks/useStudies"
+
 interface AuditTabProps {
   editMode: boolean
+  studyData: ComprehensiveStudy
 }
 
 export function AuditTab({ editMode }: AuditTabProps) {

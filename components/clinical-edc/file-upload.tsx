@@ -2,15 +2,20 @@
 
 import { useCallback } from "react"
 import { Button } from "@/components/ui/button"
-import { Sparkles, Upload, FileUp, Loader2 } from "lucide-react"
+import { Sparkles, Upload, FileUp, Loader2, FileText, FileSpreadsheet, FileCode } from "lucide-react"
 import { useDropzone } from "react-dropzone"
 
 interface FileUploadProps {
   onFileUpload: (file: File) => void
   isProcessing: boolean
+  acceptedFileTypes?: string[]
 }
 
-export function FileUpload({ onFileUpload, isProcessing }: FileUploadProps) {
+export function FileUpload({ 
+  onFileUpload, 
+  isProcessing, 
+  acceptedFileTypes = ["pdf", "docx", "xlsx", "csv", "md", "txt", "json"] 
+}: FileUploadProps) {
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
       if (acceptedFiles.length > 0) {
@@ -26,6 +31,11 @@ export function FileUpload({ onFileUpload, isProcessing }: FileUploadProps) {
       "application/pdf": [".pdf"],
       "application/msword": [".doc"],
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document": [".docx"],
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
+      "text/csv": [".csv"],
+      "text/markdown": [".md"],
+      "text/plain": [".txt"],
+      "application/json": [".json"],
     },
     multiple: false,
     disabled: isProcessing,
@@ -60,15 +70,15 @@ export function FileUpload({ onFileUpload, isProcessing }: FileUploadProps) {
         <div>
           <h3 className="text-xl font-semibold text-gray-900 mb-2">
             {isProcessing
-              ? "Processing Protocol Document"
+              ? "Processing Document"
               : isDragActive
-                ? "Drop Protocol Document Here"
-                : "Upload Protocol Document"}
+                ? "Drop Document Here"
+                : "Upload Document"}
           </h3>
           <p className="text-gray-600">
             {isProcessing
-              ? "AI is analyzing your document structure and extracting study data"
-              : "Drag and drop your protocol file or click to browse (PDF, DOC, DOCX)"}
+              ? "AI is analyzing your document and extracting study data"
+              : `Drag and drop your file or click to browse (${acceptedFileTypes.join(', ').toUpperCase()})`}
           </p>
         </div>
         {!isProcessing && (

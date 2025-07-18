@@ -1,20 +1,35 @@
-import type { Metadata } from 'next'
-import './globals.css'
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
+import "./globals.css";
+import { ThemeProvider } from "@/components/theme-provider";
+import { SimpleAuthProvider } from "@/lib/simple-auth";
+
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'Clinical EDC - Eli Lilly PoC',
-  description: 'Clinical Trial Electronic Data Capture System - Eli Lilly Proof of Concept',
-  generator: 'Next.js',
-}
+  title: "Clinical EDC",
+  description: "Clinical Trial Electronic Data Capture System",
+};
 
 export default function RootLayout({
   children,
-}: Readonly<{
-  children: React.ReactNode
-}>) {
+}: {
+  children: React.ReactNode;
+}) {
   return (
-    <html lang="en">
-      <body>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={inter.className}>
+        <SimpleAuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            {children}
+          </ThemeProvider>
+        </SimpleAuthProvider>
+      </body>
     </html>
-  )
+  );
 }

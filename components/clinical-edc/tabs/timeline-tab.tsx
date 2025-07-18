@@ -7,11 +7,31 @@ import { Textarea } from "@/components/ui/textarea"
 import { Calendar, Clock, Plus } from "lucide-react"
 import { mockTimelineData } from "@/lib/mock-data"
 
+import { ComprehensiveStudy } from "@/hooks/useStudies"
+
 interface TimelineTabProps {
   editMode: boolean
+  studyData: ComprehensiveStudy
+  onUpdateStudyData?: (updates: Partial<ComprehensiveStudy>) => void
+  onAddEpoch?: () => void
+  onUpdateEpoch?: (index: number, updates: any) => void
+  onRemoveEpoch?: (index: number) => void
+  onAddVisit?: () => void
+  onUpdateVisit?: (index: number, updates: any) => void
+  onRemoveVisit?: (index: number) => void
 }
 
-export function TimelineTab({ editMode }: TimelineTabProps) {
+export function TimelineTab({ 
+  editMode, 
+  studyData, 
+  onUpdateStudyData,
+  onAddEpoch,
+  onUpdateEpoch,
+  onRemoveEpoch,
+  onAddVisit,
+  onUpdateVisit,
+  onRemoveVisit
+}: TimelineTabProps) {
   if (editMode) {
     return (
       <div className="space-y-6">
@@ -27,7 +47,11 @@ export function TimelineTab({ editMode }: TimelineTabProps) {
             <CardContent className="p-6 space-y-4">
               <div className="flex justify-between items-center">
                 <Label className="text-gray-900 font-medium">Epochs</Label>
-                <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                <Button 
+                  size="sm" 
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={onAddEpoch}
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Epoch
                 </Button>
@@ -105,7 +129,11 @@ export function TimelineTab({ editMode }: TimelineTabProps) {
             <CardContent className="p-6 space-y-4">
               <div className="flex justify-between items-center">
                 <Label className="text-gray-900 font-medium">Visits</Label>
-                <Button size="sm" className="bg-red-600 hover:bg-red-700 text-white">
+                <Button 
+                  size="sm" 
+                  className="bg-red-600 hover:bg-red-700 text-white"
+                  onClick={onAddVisit}
+                >
                   <Plus className="h-4 w-4 mr-1" />
                   Add Visit
                 </Button>

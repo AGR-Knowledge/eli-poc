@@ -2,8 +2,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Brain, AlertCircle, TrendingUp, Activity } from "lucide-react"
 import { mockAiInsightsData } from "@/lib/mock-data"
 
+import { ComprehensiveStudy } from "@/hooks/useStudies"
+
 interface AiInsightsTabProps {
   editMode: boolean
+  studyData: ComprehensiveStudy
 }
 
 export function AiInsightsTab({ editMode }: AiInsightsTabProps) {
